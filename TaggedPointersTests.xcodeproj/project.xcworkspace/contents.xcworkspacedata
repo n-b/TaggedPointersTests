@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:TaggedPointers-test.xcodeproj">
+      location = "self:TaggedPointersTests.xcodeproj">
    </FileRef>
 </Workspace>
