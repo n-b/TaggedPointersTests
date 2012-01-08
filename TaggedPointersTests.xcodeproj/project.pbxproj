@@ -7,28 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		37977AAB14BA3C69005B9325 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37977AAA14BA3C69005B9325 /* SenTestingKit.framework */; };
 		37977ABA14BA3C69005B9325 /* TaggedPointersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 37977AB914BA3C69005B9325 /* TaggedPointersTests.m */; };
-		37977AC014BA3F0D005B9325 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37CB8D61149E41F300FFDA9A /* Foundation.framework */; };
-		37977AC114BA3F0F005B9325 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37B0A36B14A4ED8E00C83CA5 /* CoreData.framework */; };
-		37977AC814BA521F005B9325 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37977AAA14BA3C69005B9325 /* SenTestingKit.framework */; };
-		37977ACA14BA521F005B9325 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37977AC914BA521F005B9325 /* Cocoa.framework */; };
 		37977AD714BA521F005B9325 /* NSNumberSingletonsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 37977AD614BA521F005B9325 /* NSNumberSingletonsTests.m */; };
+		37977ADD14BA558E005B9325 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37977ADC14BA558E005B9325 /* Foundation.framework */; };
+		37977ADF14BA5596005B9325 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37977ADE14BA5596005B9325 /* SenTestingKit.framework */; };
+		37977AE014BA559E005B9325 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37977ADE14BA5596005B9325 /* SenTestingKit.framework */; };
+		37977AE114BA559E005B9325 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37977ADC14BA558E005B9325 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		37977AA914BA3C69005B9325 /* TaggedPointersTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TaggedPointersTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		37977AAA14BA3C69005B9325 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		37977AB414BA3C69005B9325 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		37977AB914BA3C69005B9325 /* TaggedPointersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TaggedPointersTests.m; sourceTree = "<group>"; };
 		37977AC714BA521F005B9325 /* NSNumberSingletonsTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NSNumberSingletonsTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		37977AC914BA521F005B9325 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		37977ACC14BA521F005B9325 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		37977ACD14BA521F005B9325 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		37977ACE14BA521F005B9325 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		37977AD614BA521F005B9325 /* NSNumberSingletonsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSNumberSingletonsTests.m; sourceTree = "<group>"; };
-		37B0A36B14A4ED8E00C83CA5 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		37CB8D61149E41F300FFDA9A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		37977ADC14BA558E005B9325 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		37977ADE14BA5596005B9325 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,9 +30,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				37977AC014BA3F0D005B9325 /* Foundation.framework in Frameworks */,
-				37977AC114BA3F0F005B9325 /* CoreData.framework in Frameworks */,
-				37977AAB14BA3C69005B9325 /* SenTestingKit.framework in Frameworks */,
+				37977AE014BA559E005B9325 /* SenTestingKit.framework in Frameworks */,
+				37977AE114BA559E005B9325 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,24 +39,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				37977AC814BA521F005B9325 /* SenTestingKit.framework in Frameworks */,
-				37977ACA14BA521F005B9325 /* Cocoa.framework in Frameworks */,
+				37977ADF14BA5596005B9325 /* SenTestingKit.framework in Frameworks */,
+				37977ADD14BA558E005B9325 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		37977ACB14BA521F005B9325 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				37977ACC14BA521F005B9325 /* AppKit.framework */,
-				37977ACD14BA521F005B9325 /* CoreData.framework */,
-				37977ACE14BA521F005B9325 /* Foundation.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
 		37CB8D52149E41F300FFDA9A = {
 			isa = PBXGroup;
 			children = (
@@ -87,11 +70,8 @@
 		37CB8D60149E41F300FFDA9A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				37B0A36B14A4ED8E00C83CA5 /* CoreData.framework */,
-				37CB8D61149E41F300FFDA9A /* Foundation.framework */,
-				37977AAA14BA3C69005B9325 /* SenTestingKit.framework */,
-				37977AC914BA521F005B9325 /* Cocoa.framework */,
-				37977ACB14BA521F005B9325 /* Other Frameworks */,
+				37977ADE14BA5596005B9325 /* SenTestingKit.framework */,
+				37977ADC14BA558E005B9325 /* Foundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -233,6 +213,10 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
@@ -244,6 +228,10 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
@@ -255,6 +243,10 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
@@ -266,6 +258,10 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
