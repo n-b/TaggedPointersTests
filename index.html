@@ -11,121 +11,265 @@
   <body>
     <textarea id="source">
 
+---
+
 .center.middle
-# Cocoaheads smalltalk : Tagged Pointers
+# Cocoaheads Smalltalk&nbsp;:
+# Tagged Pointers
 
 ---
 
-# principe général tagged pointers
+# Principe général
 
-* pointeurs en 64-bit alignés sur 16 octets
-	* les 4 bits faibles sont à 0
-	* tagged pointers : les 4 bits faibles ne sont pas 0
-* pas nouveau : les vieux dev mac utilisaient déjà ça
-	* par conte, différence importante : c'était vraiment des flags sur des vrais pointeurs.
-	* Ici, l'adresse pointée est invalide : la data est dans les 64 bit du pointeurs.
+* En 64-bit sur Intel, les pointeurs sont alignés sur 16 octets
 
----
+    `FFFF FFFF FFFF FFF0`
 
-# principe technique (animations sur les bitfields)
-
-<table style='margin-left: auto;
-margin-right: auto;
-'>
-	<tr>
-		<td>1</td> <td>2</td>
-	</tr>
-</table>
-
-| 1 | 2 |
-|===|===|
-| a | b |
-
-* dernier octet utilisé pour metadata
-	* 1 bit : flag
-	* 7 bits d'infos de type
-		* 3 bits de classe
-			* 8 entrées dans une table statique
-		* 4 bits d'infos réservés pour la classe
-* 7 octets (56 bits) de payload
+* Tagged Pointers : les 4 bits faibles ne sont pas 0
+* Principe assez ancien
+	<!--
+	* déjà du temps de System 7
+	* par contre, à l'époque, c'étaient de vrais pointeurs 32-bit
+	* ici, l'adresse pointée est invalide : la data est dans les 64 bit du pointeurs.
+	-->
+* Dans cette implémentation, le payload est *dans le pointeur*.
+	<!--
+	Avantages :
+		* passage par valeur
+		* pas de gestion mémoire
+	-->
 
 ---
 
-# intérêt (slide)
+# Implémentation
 
-* passage par valeur
-* pas de gestion mémoire
+	   6         5         4         3         2         1         0
+	3210987654321098765432109876543210987654321098765432109876543210
+	........................................................xxxx0011
+	|                                                       |   |  +-- (1 bit)
+	|                                                       |   +----- (3 bits)
+	|                                                       +--------- (4 bits)
+	+----------------------------------------------------------------- (56 bits)
+    
+	
+* 1 bit : flag, 1 pour les tagged pointers
+* 7 bits d'infos de type
+	* 3 bits pour la classe Objective-C
+	<!-- * 8 entrées dans une table statique -->
+	* 4 bits d'infos réservés pour la classe
+* 56 bits (7 octets) de payload
+
+<!--
+	Cela dit, c'est implémenté à relativement au niveau : 
+	* pas dans le compilateur,
+	* pas dans le système d'allocation mémoire,
+	* dans les class CoreFoundation elles-mêmes
+	* et dans le runtime ObjC
+	* dans CoreFoundation (CFInternal)
+		* CFNumber.m
+		* CFInternal.h
+ -->
 
 ---
 
-# implémenté à relativement au niveau :
+# Implémentation (CFInternal.h)
 
-* pas dans le compilateur,
-* dans le runtime ObjC
-* dans CoreFoundation (CFInternal)
-	* CFNumber.m
-	* CFInternal.h
+	#define CF_IS_TAGGED_OBJ(PTR)	((uintptr_t)(PTR) & 0x1)
+	#define CF_TAGGED_OBJ_TYPE(PTR)	((uintptr_t)(PTR) & 0xF)
+	 
+	enum {
+	    kCFTaggedObjectID_Invalid = 0,
+	    kCFTaggedObjectID_Undefined0 = (0 << 1) + 1,
+	    kCFTaggedObjectID_Integer = (1 << 1) + 1,
+	    kCFTaggedObjectID_Undefined2 = (2 << 1) + 1,
+	    kCFTaggedObjectID_Undefined3 = (3 << 1) + 1,
+	    kCFTaggedObjectID_Undefined4 = (4 << 1) + 1,
+	    kCFTaggedObjectID_ManagedObjectID = (5 << 1) + 1, // Core Data
+	    kCFTaggedObjectID_Date = (6 << 1) + 1,
+	    kCFTaggedObjectID_DateTS = (7 << 1) + 1,
+	};
+
+<!--
+	* 3 octets donc 8 classes possibles
+		* c'est l'implémentation actuelle, on peut changer
+		* le bit de poids faible est utilisé comme flag, alors qu'il suffit que le dernier 4-bit ne soit pas 0
+
+	# Aujourd'hui 4 valeurs utilisées
+	* enum de CFInternal (slide)
+		* NSNUmber (dans CFNumber.c)
+		* NSDate (mais pas CFDateRef?)
+		* NSDateTimeStamp (?)
+		* NSManagedObjectID (pas vu)
+
+ -->
 
 ---
 
-# 3 octets donc 8 classes possibles
+# Implémentation (objc-private.h)
 
-* c'est l'implémentation actuelle, on peut changer
-	* le bit de poids faible est utilisé comme flag, alors qu'il suffit que le dernier 4-bit ne soit pas 0
+	#define OBJC_IS_TAGGED_PTR(PTR)		((uintptr_t)(PTR) & 0x1)
+	extern Class _objc_tagged_isa_table[16];
+
+	static inline Class _object_getClass(id obj)
+	{
+	    if (OBJC_IS_TAGGED_PTR(obj)) {
+	        uint8_t slotNumber = ((uint8_t) (uint64_t) obj) & 0x0F;
+	        Class isa = _objc_tagged_isa_table[slotNumber];
+	        return isa;
+	    }
+	}
+
+<!-- 
 	* _objc_tagged_isa_table : tableau C global de 16 pointeurs vers les structures de Class.
-		* en réalité, 8 valeurs utilisés (3 bits)
+	* en réalité, 8 valeurs utilisés (3 bits) sur les 16, puisque le dernier bit est toujours 1.
+ -->
 
 ---
 
-# Aujourd'hui 4 valeurs utilisées
-* enum de CFInternal (slide)
-	* NSNUmber (dans CFNumber.c)
-	* NSDate (mais pas CFDateRef?)
-	* NSDateTimeStamp (?)
-	* NSManagedObjectID (pas vu)
+# Implémentation (CFNumber.m)
+
+	Boolean CFNumberGetValue(CFNumberRef number,
+			 				 CFNumberType type,
+							 void *valuePtr) {
+	...
+	    taggedInteger = taggedInteger >> 8;
+	...
 
 ---
 
-# - [NSNumber numberWithInt:]
+# Implémentation (Integers)
 
-illustration sur un int (décalage pour obtenir la valeur)
-en décalant (>>8) les 56 bits, on obtient un int
-* fonctionne avec numberWithShort:, numberWithLong, numberWithLongLong.
-	* pour numberWithLongLong, vérifie d'abord si la valeur tient sur 56 bits.
-* pas implémenté pour numberWithFloat et numberWithDouble
-	* pourquoi? float tiendrait sans hack, et le problème des doubles et réglé pour NSDate
+	- (void) testSanity
+	{
+		NSNumber * obj1 = [NSNumber numberWithInt:42];
+		NSNumber * obj2 = [NSNumber numberWithInt:42];
+		STAssertEqualObjects(obj1, obj2, @"both objects are equal");
+	}
+	
+	- (void) testPointerEquality
+	{
+		NSNumber * obj1 = [NSNumber numberWithInt:42];
+		NSNumber * obj2 = [NSNumber numberWithInt:42];
+		STAssertEquals(obj1, obj2, @"both objects are **the same**");
+	}
+	
+	- (void) testPointerValue
+	{
+		NSNumber * object = [NSNumber numberWithInt:42];
+		// shifting the last byte reveals the value
+		STAssertEquals(42, (int)((long)object>>8), @"the value is in the pointer");
+	}
+
+<!-- 
+	* fonctionne avec les entiers de 8 à 64-bit
+		* pour les entiers 64-bit, vérifie d'abord si la valeur tient sur les 56 bits de paylod.
+	* pas implémenté pour float et double
+		* pourquoi? float tiendrait sans hack, et le problème des doubles et réglé pour NSDate
+ -->
 
 ---
 
-# illustration sur NSDate (extraits code)
+# Implémentation (NSDate)
 
-* NSDate est sémantiquement équivalent à NSTimeInterval (double)
-* le double est obtenu en masquant le dernier octet par zero
-* fallback sur un vrai objet si le double ne tient pas sur 56-bit
+**NSDate <=> NSTimeInterval**
+
+	typedef union _DoupleOrPointer {
+	    NSTimeInterval interval;
+	    void * p;
+	} DoupleOrPointer;
+
+	- (void) testPointerValue
+	{
+	    DoupleOrPointer dop = {.interval = 42.0};
+	    NSDate * object = [NSDate dateWithTimeIntervalSinceReferenceDate:
+						   dop.interval];
+	    // Masking out the last byte gives the passed interval
+	    STAssertEquals(dop.p, (void*)((long)object&0xFFFFFFFFFFFFFF00),
+					   @"the pointer is the value");
+	}
+
+<!-- 
+	* le double est obtenu en masquant le dernier octet par zero
+	* fallback sur un vrai objet si le double ne tient pas sur 56-bit
+	* Pas vu dans le source de CFDateRef, qui est pourtant toll-free bridged;
+ -->
+
+---
+
+# Implémentation (NSManagedObjectID)
+
+?
+
+<!-- 
+	* pas vu dans mes tests
+	* l'idée est pourtant très utile.
+ -->
+
+---
+
+# Links
+
+* objectivistc.tumblr.com
+	* [Tagged pointers and fast-pathed CFNumber integers in Lion](http://objectivistc.tumblr.com/post/7872364181/tagged-pointers-and-fast-pathed-cfnumber-integers-in)
+	* (http://objectivistc.tumblr.com/post/8992822737/a-chocking-mystery-po-nsnumber-numberwithbool-no)
+* [Objc-langage sur lists.apple.com](http://lists.apple.com/archives/Objc-language/2011/Nov/msg00014.html)
+* Source Code
+	* http://opensource.apple.com/source/objc4/objc4-493.9/
+	* http://opensource.apple.com/source/CF/CF-635/
+
+<!-- 
+	* Philippe Mougin vu sur la liste.
+ -->
 
 ---
 
 # Bonus #1 : singleton NSNumbers
 
+	- (void) testNSNumberSingletons
+	{
+	    for (int i = -1000; i<=1000; i++) {
+	        // NSNumber between -1 and 12 are singletons
+	        if(i>=-1 && i<=12)
+	            STAssertTrue( [NSNumber numberWithInt:i] == [NSNumber numberWithInt:i],
+	                         @"both objects should be the same for value %d",i);
+	        else
+	            STAssertFalse( [NSNumber numberWithInt:i] == [NSNumber numberWithInt:i],
+	                          @"both objects should not be the same for value %d",i);
+	    }
+	}
+
+<!-- 
+	* fonctionne en 32-bit depuis assez longtemps sur Mac, et sur iOS.
+ -->
+
 ---
 
-# Bonus #2 : source code by bertrand serlet
-* wonderful old code by bertrand serlet in (http://opensource.apple.com/source/objc4/objc4-493.9/runtime/hashtable2.m?txt)
+# Bonus #2 : objc4/runtime/hashtable2.m
 
+	/*
+		hashtable2.m
+	  	Copyright 1989-1996 NeXT Software, Inc.
+		Created by Bertrand Serlet, Feb 89
+	 */
+  
+
+	...
+	
+	/*************************************************************************
+	 *
+	 *	On z'y va
+	 *	
+	 *************************************************************************/
+	 
+	NXHashTable *NXCreateHashTable (NXHashTablePrototype prototype, unsigned capacity, const void *info) {
+	
 ---
 
-# Links
-* [discussion sur lists.apple.com/Objc-langage](http://lists.apple.com/archives/Objc-language/2011/Nov/msg00014.html)
-* (http://objectivistc.tumblr.com/post/7872364181/tagged-pointers-and-fast-pathed-cfnumber-integers-in)
-* (http://objectivistc.tumblr.com/post/8992822737/a-chocking-mystery-po-nsnumber-numberwithbool-no)
-* http://opensource.apple.com/source/objc4/objc4-493.9/
-* http://opensource.apple.com/source/CF/CF-635/
-
----
-
-.center.middle
-
-# Thanks
+<!-- 
+	* 1989 !
+	* Préfixe NX
+	* Legacy code (probablement plus compilé, mais les sources sont encore là)
+ -->
 
     </textarea>
     <div id="slideshow"></div>
