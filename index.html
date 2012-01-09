@@ -201,14 +201,14 @@ En 64-bit sur Intel, les pointeurs sont alignés sur 16 octets.
 **NSDate <=> NSTimeInterval**
 
 	.objectivec
-	typedef union _DoupleOrPointer {
+	typedef union _DoubleOrPointer {
 	    NSTimeInterval interval;
 	    void * p;
-	} DoupleOrPointer;
+	} DoubleOrPointer;
 
 	- (void) testPointerValue
 	{
-	    DoupleOrPointer dop = {.interval = 42.0};
+	    DoubleOrPointer dop = {.interval = 42.0};
 	    NSDate * object = [NSDate dateWithTimeIntervalSinceReferenceDate:
 						   dop.interval];
 	    // Masking out the last byte gives the passed interval
