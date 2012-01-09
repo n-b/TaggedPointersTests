@@ -1,3 +1,1 @@
-# TaggedPointers-test
-
 A small xcode project and [slides for a presentation](http://n-b.github.com/TaggedPointersTests) on Objective-C and CoreFoundation Tagged Pointers at CocoaHeads Paris.
