@@ -5,53 +5,85 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <script src="https://github.com/downloads/gnab/remark/remark-0.3.1.min.js" type="text/javascript"></script>
     <style type="text/css" media="screen">
-      /* Slideshow styles */
-    </style>
+		@import url(http://fonts.googleapis.com/css?family=Arvo:700italic);
+
+		h1, h2 {
+		  font-family: 'Arvo';
+          font-weight: bold;
+		  font-style : italic;
+		}
+		a {
+		  color: #a86;
+		  text-decoration: none;
+		}
+		.center {
+		  margin: 0 auto;
+		}
+		.footnote {
+		  position: absolute;
+		  bottom: 3em;
+		}
+		.red {
+		  color: #fa0000;
+		}
+		pre {
+		  border-left: 0.4em solid #d7d7d7;
+		  padding-left: 0.5em;
+		}
+		code {
+		  background: #f4f4f4 !important;
+		}
+		.position {
+		  visibility: hidden;
+		}
+		</style>
   </head>
   <body>
     <textarea id="source">
 
----
 
 .center.middle
-# Cocoaheads Smalltalk&nbsp;:
+## Cocoaheads Smalltalk
 # Tagged Pointers
 
 ---
 
-# Principe général
+# Principe
 
-* En 64-bit sur Intel, les pointeurs sont alignés sur 16 octets
+En 64-bit sur Intel, les pointeurs sont alignés sur 16 octets.
 
-    `FFFF FFFF FFFF FFF0`
+	.no-highlight
+	   6         5         4         3         2         1         0
+	3210987654321098765432109876543210987654321098765432109876543210
+	............................................................0000
 
-* Tagged Pointers : les 4 bits faibles ne sont pas 0
-* Principe assez ancien
-	<!--
+<!--
+	* Tagged Pointers : les 4 bits faibles ne sont pas 0
+	* Principe assez ancien
 	* déjà du temps de System 7
-	* par contre, à l'époque, c'étaient de vrais pointeurs 32-bit
+		* par contre, à l'époque, c'étaient de vrais pointeurs 32-bit
 	* ici, l'adresse pointée est invalide : la data est dans les 64 bit du pointeurs.
-	-->
-* Dans cette implémentation, le payload est *dans le pointeur*.
-	<!--
 	Avantages :
 		* passage par valeur
 		* pas de gestion mémoire
-	-->
+-->
 
 ---
 
-# Implémentation
+# Principe
 
+En 64-bit sur Intel, les pointeurs sont alignés sur 16 octets.
+
+	.no-highlight
 	   6         5         4         3         2         1         0
 	3210987654321098765432109876543210987654321098765432109876543210
-	........................................................xxxx0011
-	|                                                       |   |  +-- (1 bit)
-	|                                                       |   +----- (3 bits)
-	|                                                       +--------- (4 bits)
-	+----------------------------------------------------------------- (56 bits)
-    
-	
+	........................................................ccccttt1
+	|                                                       |   |  +- 1 bit
+	|                                                       |   +---- 3 bits
+	|                                                       +-------- 4 bits
+	+---------------------------------------------------------------- 56 bits
+
+
 * 1 bit : flag, 1 pour les tagged pointers
 * 7 bits d'infos de type
 	* 3 bits pour la classe Objective-C
@@ -72,8 +104,9 @@
 
 ---
 
-# Implémentation (CFInternal.h)
+# CFInternal.h
 
+	.objectivec
 	#define CF_IS_TAGGED_OBJ(PTR)	((uintptr_t)(PTR) & 0x1)
 	#define CF_TAGGED_OBJ_TYPE(PTR)	((uintptr_t)(PTR) & 0xF)
 	 
@@ -105,8 +138,9 @@
 
 ---
 
-# Implémentation (objc-private.h)
+# objc-private.h
 
+	.objectivec
 	#define OBJC_IS_TAGGED_PTR(PTR)		((uintptr_t)(PTR) & 0x1)
 	extern Class _objc_tagged_isa_table[16];
 
@@ -126,38 +160,31 @@
 
 ---
 
-# Implémentation (CFNumber.m)
+# Integers
 
-	Boolean CFNumberGetValue(CFNumberRef number,
-			 				 CFNumberType type,
-							 void *valuePtr) {
-	...
-	    taggedInteger = taggedInteger >> 8;
-	...
-
----
-
-# Implémentation (Integers)
-
+	.objectivec
 	- (void) testSanity
 	{
 		NSNumber * obj1 = [NSNumber numberWithInt:42];
 		NSNumber * obj2 = [NSNumber numberWithInt:42];
-		STAssertEqualObjects(obj1, obj2, @"both objects are equal");
+		STAssertEqualObjects(obj1, obj2,
+							 @"both objects are equal");
 	}
 	
 	- (void) testPointerEquality
 	{
 		NSNumber * obj1 = [NSNumber numberWithInt:42];
 		NSNumber * obj2 = [NSNumber numberWithInt:42];
-		STAssertEquals(obj1, obj2, @"both objects are **the same**");
+		STAssertEquals(obj1, obj2,
+					   @"both objects are **the same**");
 	}
 	
 	- (void) testPointerValue
 	{
 		NSNumber * object = [NSNumber numberWithInt:42];
 		// shifting the last byte reveals the value
-		STAssertEquals(42, (int)((long)object>>8), @"the value is in the pointer");
+		STAssertEquals(42, (int)((long)object>>8),
+					   @"the value is in the pointer");
 	}
 
 <!-- 
@@ -169,10 +196,11 @@
 
 ---
 
-# Implémentation (NSDate)
+# NSDate
 
 **NSDate <=> NSTimeInterval**
 
+	.objectivec
 	typedef union _DoupleOrPointer {
 	    NSTimeInterval interval;
 	    void * p;
@@ -196,26 +224,16 @@
 
 ---
 
-# Implémentation (NSManagedObjectID)
-
-?
-
-<!-- 
-	* pas vu dans mes tests
-	* l'idée est pourtant très utile.
- -->
-
----
-
 # Links
 
 * objectivistc.tumblr.com
 	* [Tagged pointers and fast-pathed CFNumber integers in Lion](http://objectivistc.tumblr.com/post/7872364181/tagged-pointers-and-fast-pathed-cfnumber-integers-in)
-	* (http://objectivistc.tumblr.com/post/8992822737/a-chocking-mystery-po-nsnumber-numberwithbool-no)
-* [Objc-langage sur lists.apple.com](http://lists.apple.com/archives/Objc-language/2011/Nov/msg00014.html)
-* Source Code
-	* http://opensource.apple.com/source/objc4/objc4-493.9/
-	* http://opensource.apple.com/source/CF/CF-635/
+	* [A CHOCKING MYSTERY: po [NSNumber numberWithBool:NO] outputs 1](http://objectivistc.tumblr.com/post/8992822737/a-chocking-mystery-po-nsnumber-numberwithbool-no)
+* lists.apple.com
+	* [Objc-langage](http://lists.apple.com/archives/Objc-language/2011/Nov/msg00014.html)
+* opensource.apple.com
+	* [ObjC](http://opensource.apple.com/source/objc4/objc4-493.9/)
+	* [CoreFoundation](http://opensource.apple.com/source/CF/CF-635/)
 
 <!-- 
 	* Philippe Mougin vu sur la liste.
@@ -223,18 +241,21 @@
 
 ---
 
-# Bonus #1 : singleton NSNumbers
+# Bonus #1 : Singleton NSNumbers
 
+	.objectivec
 	- (void) testNSNumberSingletons
 	{
 	    for (int i = -1000; i<=1000; i++) {
-	        // NSNumber between -1 and 12 are singletons
+	        // NSNumbers between -1 and 12 are singletons
 	        if(i>=-1 && i<=12)
-	            STAssertTrue( [NSNumber numberWithInt:i] == [NSNumber numberWithInt:i],
-	                         @"both objects should be the same for value %d",i);
+	            STAssertTrue( [NSNumber numberWithInt:i]
+							  == [NSNumber numberWithInt:i],
+	                       	  @"objects should be the same pointer");
 	        else
-	            STAssertFalse( [NSNumber numberWithInt:i] == [NSNumber numberWithInt:i],
-	                          @"both objects should not be the same for value %d",i);
+	            STAssertTrue( [NSNumber numberWithInt:i]
+					 		  != [NSNumber numberWithInt:i],
+	                          @"objects should not be the same pointer");
 	    }
 	}
 
@@ -246,25 +267,24 @@
 
 # Bonus #2 : objc4/runtime/hashtable2.m
 
+	.objectivec
 	/*
 		hashtable2.m
 	  	Copyright 1989-1996 NeXT Software, Inc.
 		Created by Bertrand Serlet, Feb 89
 	 */
-  
-
-	...
 	
-	/*************************************************************************
+	...
+
+	/**********************************************************************
 	 *
 	 *	On z'y va
 	 *	
-	 *************************************************************************/
-	 
-	NXHashTable *NXCreateHashTable (NXHashTablePrototype prototype, unsigned capacity, const void *info) {
+	 **********************************************************************/
 	
----
-
+	NXHashTable *NXCreateHashTable (NXHashTablePrototype prototype,
+	...
+	
 <!-- 
 	* 1989 !
 	* Préfixe NX
