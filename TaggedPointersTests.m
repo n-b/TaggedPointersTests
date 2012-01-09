@@ -72,14 +72,14 @@
 
 @implementation TaggedPointersTests_NSDate
 
-typedef union _DoupleOrPointer {
+typedef union _DoubleOrPointer {
     NSTimeInterval interval;
     void * p;
-} DoupleOrPointer;
+} DoubleOrPointer;
 
 - (void) testPointerValue
 {
-    DoupleOrPointer dop = {.interval = 42.0};
+    DoubleOrPointer dop = {.interval = 42.0};
     NSDate * object = [NSDate dateWithTimeIntervalSinceReferenceDate:dop.interval];
     // Masking out the last byte gives the passed interval
     STAssertEquals(dop.p, (void*)((long)object&0xFFFFFFFFFFFFFF00), @"the pointer is the value");
@@ -88,7 +88,7 @@ typedef union _DoupleOrPointer {
 - (void) testMonkey
 {
     for (int i=0; i<1000; i++) {
-        DoupleOrPointer dop = {.interval = (double)random()};
+        DoubleOrPointer dop = {.interval = (double)random()};
         NSDate * object = [NSDate dateWithTimeIntervalSinceReferenceDate:dop.interval];
         // Masking out the last byte gives the passed interval
         STAssertEquals(dop.p, (void*)((long)object&0xFFFFFFFFFFFFFF00), @"the pointer is the value");
